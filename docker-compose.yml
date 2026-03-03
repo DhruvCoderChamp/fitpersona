@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: fitpersona
       POSTGRES_USER: fitpersona_user
-      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_PASSWORD: Dh123ruv#@
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
