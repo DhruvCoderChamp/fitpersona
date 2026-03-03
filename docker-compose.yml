@@ -2,16 +2,16 @@ version: '3.8'
 
 services:
 
-  db:
+  postgres_db:
     image: postgres:15
     container_name: fitpersona_db
     restart: always
     environment:
       POSTGRES_DB: fitpersona
       POSTGRES_USER: fitpersona_user
-      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_PASSWORD: fitpersona_pass
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - fitpersona_data:/var/lib/postgresql/data
 
   backend:
     build: ./backend
@@ -19,11 +19,11 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fitpersona
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/fitpersona
       SPRING_DATASOURCE_USERNAME: fitpersona_user
-      SPRING_DATASOURCE_PASSWORD: strongpassword
+      SPRING_DATASOURCE_PASSWORD: fitpersona_pass
     depends_on:
-      - db
+      - postgres_db
 
   frontend:
     build: ./frontend
@@ -35,4 +35,4 @@ services:
       - "80:80"
 
 volumes:
-  postgres_data:
+  fitpersona_data:
