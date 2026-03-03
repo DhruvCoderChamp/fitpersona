@@ -5,7 +5,7 @@ import { AuthResponse, LoginRequest, RegisterRequest, UserProfile } from '../mod
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private apiUrl = 'https://fitpersona.in/api/auth';
+    private apiUrl = '/api/auth';
     private tokenKey = 'fitai_token';
     private userKey = 'fitai_user';
 

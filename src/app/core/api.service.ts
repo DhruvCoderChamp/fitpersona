@@ -8,7 +8,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-    private baseUrl = 'https://fitpersona.in/api';
+    private baseUrl = '/api';
 
     constructor(private http: HttpClient) { }
 
