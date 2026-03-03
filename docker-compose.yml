@@ -19,6 +19,9 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/fitpersona
+      SPRING_DATASOURCE_USERNAME: fitatuser
+      SPRING_DATASOURCE_PASSWORD: fitpassword123
     depends_on:
       - postgres_db
 
