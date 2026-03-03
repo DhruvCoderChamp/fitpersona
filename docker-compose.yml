@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: fitpersona
       POSTGRES_USER: fitpersona_user
-      POSTGRES_PASSWORD: strongpassword  
+      POSTGRES_PASSWORD: strongpassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -21,7 +21,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/fitpersona
       SPRING_DATASOURCE_USERNAME: fitpersona_user
-      SPRING_DATASOURCE_PASSWORD: strongpassword  
+      SPRING_DATASOURCE_PASSWORD: strongpassword
     depends_on:
       - db
 
