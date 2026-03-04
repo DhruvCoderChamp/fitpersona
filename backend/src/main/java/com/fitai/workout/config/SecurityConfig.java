@@ -40,10 +40,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/exercises/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                .antMatcher("/api/auth/**"))
+                        .permitAll()
+                        .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                .antMatcher("/h2-console/**"))
+                        .permitAll()
+                        .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                .antMatcher(org.springframework.http.HttpMethod.GET, "/api/exercises/**"))
+                        .permitAll()
+                        .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                .antMatcher(org.springframework.http.HttpMethod.OPTIONS, "/**"))
+                        .permitAll()
+                        .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
+                                .antMatcher("/api/admin/**"))
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(fo -> fo.disable()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
