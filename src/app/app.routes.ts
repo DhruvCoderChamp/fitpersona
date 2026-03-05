@@ -8,6 +8,8 @@ export const routes: Routes = [
     { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [authGuard] },
     { path: 'workout/preferences', loadComponent: () => import('./features/workout/preferences.component').then(m => m.PreferencesComponent), canActivate: [authGuard] },
     { path: 'workout/plan', loadComponent: () => import('./features/workout/plan.component').then(m => m.PlanComponent), canActivate: [authGuard] },
+    { path: 'diet/form', loadComponent: () => import('./features/diet/diet-form.component').then(m => m.DietFormComponent), canActivate: [authGuard] },
+    { path: 'diet/plan', loadComponent: () => import('./features/diet/diet-plan.component').then(m => m.DietPlanComponent), canActivate: [authGuard] },
     { path: 'admin/exercises', loadComponent: () => import('./features/admin/exercises.component').then(m => m.ExercisesComponent), canActivate: [authGuard, adminGuard] },
     { path: '**', redirectTo: '' }
 ];

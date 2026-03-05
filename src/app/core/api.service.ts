@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     WorkoutPreferenceRequest, WorkoutPlanResponse,
-    DashboardResponse, Exercise
+    DashboardResponse, Exercise,
+    DietPlanRequest, DietPlanResponse
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -53,5 +54,10 @@ export class ApiService {
 
     deleteExercise(id: number): Observable<any> {
         return this.http.delete(`${this.baseUrl}/exercises/${id}`);
+    }
+
+    // Diet Plan
+    generateDietPlan(req: DietPlanRequest): Observable<DietPlanResponse> {
+        return this.http.post<DietPlanResponse>(`${this.baseUrl}/diet/generate`, req);
     }
 }

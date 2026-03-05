@@ -92,3 +92,34 @@ export interface Exercise {
     defaultReps: number;
     defaultRestSeconds: number;
 }
+
+export interface DietPlanRequest {
+    age: number;
+    gender: string;
+    height: number;
+    weight: number;
+    activityLevel: 'SEDENTARY' | 'MODERATE' | 'ACTIVE';
+    goal: 'FAT_LOSS' | 'WEIGHT_GAIN' | 'MUSCLE_GAIN' | 'MAINTENANCE';
+}
+
+export interface DietPlanResponse {
+    dailyCalories: number;
+    proteinGrams: number;
+    carbsGrams: number;
+    fatsGrams: number;
+    goal: string;
+    days: DietDayResponse[];
+}
+
+export interface DietDayResponse {
+    dayNumber: number;
+    dayName: string;
+    meals: MealResponse[];
+}
+
+export interface MealResponse {
+    mealType: string;
+    description: string;
+    calories: number;
+    items: string[];
+}

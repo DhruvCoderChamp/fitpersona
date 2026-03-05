@@ -5,10 +5,10 @@ import { ApiService } from '../../core/api.service';
 import { DashboardResponse } from '../../models/models';
 
 @Component({
-    selector: 'app-dashboard',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
     <div class="page-container">
       <div class="dash-header animate-fade-in-up">
         <div>
@@ -112,11 +112,15 @@ import { DashboardResponse } from '../../models/models';
             <span class="action-icon">🎯</span>
             <span class="action-text">New Plan</span>
           </a>
+          <a routerLink="/diet/form" class="action-card">
+            <span class="action-icon">🥗</span>
+            <span class="action-text">Diet Plan</span>
+          </a>
         </div>
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .gradient-text {
       background: var(--accent-gradient);
       -webkit-background-clip: text;
@@ -301,32 +305,32 @@ import { DashboardResponse } from '../../models/models';
   `]
 })
 export class DashboardComponent implements OnInit {
-    data: DashboardResponse | null = null;
-    loading = true;
-    waterDrank = 0;
-    waterGlasses: number[] = [];
+  data: DashboardResponse | null = null;
+  loading = true;
+  waterDrank = 0;
+  waterGlasses: number[] = [];
 
-    bmiRanges = [
-        { label: 'Underweight', range: '< 18.5', color: 'rgba(64,196,255,0.2)' },
-        { label: 'Normal', range: '18.5 - 24.9', color: 'rgba(0,230,118,0.2)' },
-        { label: 'Overweight', range: '25 - 29.9', color: 'rgba(255,171,64,0.2)' },
-        { label: 'Obese', range: '≥ 30', color: 'rgba(255,82,82,0.2)' }
-    ];
+  bmiRanges = [
+    { label: 'Underweight', range: '< 18.5', color: 'rgba(64,196,255,0.2)' },
+    { label: 'Normal', range: '18.5 - 24.9', color: 'rgba(0,230,118,0.2)' },
+    { label: 'Overweight', range: '25 - 29.9', color: 'rgba(255,171,64,0.2)' },
+    { label: 'Obese', range: '≥ 30', color: 'rgba(255,82,82,0.2)' }
+  ];
 
-    constructor(private api: ApiService) { }
+  constructor(private api: ApiService) { }
 
-    ngOnInit() {
-        this.api.getDashboard().subscribe({
-            next: (data) => {
-                this.data = data;
-                this.waterGlasses = Array(Math.ceil(data.waterIntakeLiters / 0.25)).fill(0);
-                this.loading = false;
-            },
-            error: () => { this.loading = false; }
-        });
-    }
+  ngOnInit() {
+    this.api.getDashboard().subscribe({
+      next: (data) => {
+        this.data = data;
+        this.waterGlasses = Array(Math.ceil(data.waterIntakeLiters / 0.25)).fill(0);
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
 
-    toggleWater(index: number) {
-        this.waterDrank = index < this.waterDrank ? index : index + 1;
-    }
+  toggleWater(index: number) {
+    this.waterDrank = index < this.waterDrank ? index : index + 1;
+  }
 }
