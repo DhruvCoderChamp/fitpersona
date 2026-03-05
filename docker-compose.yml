@@ -33,6 +33,9 @@ services:
       - backend
     ports:
       - "80:80"
+       - "443:443"
+  volumes:
+    - /etc/letsencrypt:/etc/letsencrypt
 
 # volumes:
 #   fitpersona_data:
