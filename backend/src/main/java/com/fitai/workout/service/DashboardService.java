@@ -30,7 +30,7 @@ public class DashboardService {
         int completedDays = 0;
         int estimatedCalories = 0;
 
-        var latestPlan = workoutPlanRepository.findTopByUserIdOrderByGeneratedDateDesc(user.getId());
+        var latestPlan = workoutPlanRepository.findTopByUserIdOrderByIdDesc(user.getId());
         if (latestPlan.isPresent()) {
             WorkoutPlan plan = latestPlan.get();
             totalDays = plan.getWorkoutDays().size();

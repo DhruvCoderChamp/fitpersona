@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { WorkoutPlanResponse } from '../../models/models';
+import { WorkoutPlanResponse, WorkoutLogRequest } from '../../models/models';
 
 @Component({
-    selector: 'app-plan',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-plan',
+  standalone: true,
+  imports: [CommonModule, RouterLink, FormsModule],
+  template: `
     <div class="page-container">
       <div class="plan-header animate-fade-in-up" *ngIf="plan">
         <h1 class="page-title">📋 {{plan.planName}}</h1>
@@ -49,18 +50,30 @@ import { WorkoutPlanResponse } from '../../models/models';
             </div>
 
             <div class="exercises-list">
-              <div *ngFor="let ex of day.exercises; let j = index" class="exercise-item">
-                <div class="ex-info">
-                  <span class="ex-name">{{ex.exerciseName}}</span>
-                  <span class="ex-desc">{{ex.description}}</span>
+              <div *ngFor="let ex of day.exercises; let j = index" class="exercise-card">
+                <div class="exercise-main">
+                  <div class="ex-info">
+                    <h4 class="ex-name">{{ex.exerciseName}}</h4>
+                    <p class="ex-meta">{{ex.sets}} Sets × {{ex.reps}} Reps</p>
+                  </div>
+                  <div class="ex-actions">
+                    <button class="btn-sm" (click)="toggleLog(ex.id)" [class.active]="showLog[ex.id]">📝 Log</button>
+                    <button *ngIf="ex.gifUrl" class="btn-sm" (click)="toggleGif(ex.id)" [class.active]="showGif[ex.id]">🎬 View GIF</button>
+                  </div>
                 </div>
-                <div class="ex-details">
-                  <span class="ex-badge sets">{{ex.sets}} sets</span>
-                  <span class="ex-badge reps">{{ex.reps}} reps</span>
-                  <span class="ex-badge rest">{{ex.restTimeSeconds}}s rest</span>
+
+                <div *ngIf="showGif[ex.id]" class="ex-gif-preview animate-slide-down">
+                  <img [src]="ex.gifUrl" [alt]="ex.exerciseName">
                 </div>
-                <div class="ex-meta">
-                  <span class="difficulty" [attr.data-level]="ex.difficulty">{{ex.difficulty}}</span>
+
+                <div *ngIf="showLog[ex.id]" class="ex-log-inline animate-slide-down">
+                  <div class="log-row">
+                    <input type="number" [(ngModel)]="logFormData[ex.id].setNumber" placeholder="Set" class="sm-input">
+                    <input type="number" [(ngModel)]="logFormData[ex.id].reps" placeholder="Reps" class="sm-input">
+                    <input type="number" [(ngModel)]="logFormData[ex.id].weightLifted" placeholder="kg" class="sm-input">
+                    <button class="btn-save" (click)="submitLog(ex.id, day.id, ex.baseExerciseId)">Save</button>
+                  </div>
+                  <div *ngIf="prMessage[ex.id]" class="pr-badge">{{prMessage[ex.id]}}</div>
                 </div>
               </div>
             </div>
@@ -74,14 +87,20 @@ import { WorkoutPlanResponse } from '../../models/models';
         </div>
 
         <div class="plan-actions">
-          <a routerLink="/workout/preferences" class="btn btn-secondary">
+          <a routerLink="/workout/builder" class="btn btn-primary">
+            ➕ Create Custom Plan
+          </a>
+          <a routerLink="/progress" class="btn btn-info" style="margin-left: 10px;">
+            📈 View Progress
+          </a>
+          <a routerLink="/workout/preferences" class="btn btn-secondary" style="margin-left: 10px;">
             🔄 Generate New Plan
           </a>
         </div>
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .gradient-text {
       background: var(--accent-gradient);
       -webkit-background-clip: text;
@@ -134,146 +153,238 @@ import { WorkoutPlanResponse } from '../../models/models';
     .days-grid {
       display: grid;
       gap: 1.5rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .day-card {
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       overflow: hidden;
       transition: all 0.3s;
       opacity: 0;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
     .day-card.completed {
-      border-color: rgba(0, 230, 118, 0.3);
-      background: rgba(0, 230, 118, 0.03);
+      border-color: #00e676;
+      background: rgba(0, 230, 118, 0.08);
     }
     .day-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.25rem 1.5rem;
-      background: rgba(255,255,255,0.02);
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
       border-bottom: 1px solid var(--border);
     }
     .day-header h3 {
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0;
     }
     .toggle-btn {
-      background: transparent;
+      background: var(--accent);
+      border: none;
+      color: #000;
+      padding: 0.5rem 1.25rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 10px rgba(0,230,118,0.3);
+    }
+    .toggle-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(0,230,118,0.4);
+    }
+    .toggle-btn.done {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .exercise-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 0.5rem 1.25rem;
+    }
+    .exercise-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ex-name { font-size: 1rem; font-weight: 700; color: white; margin: 0; }
+    .ex-meta { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+    .ex-actions { display: flex; gap: 0.5rem; }
+    
+    .btn-sm {
+      background: rgba(255,255,255,0.05);
       border: 1px solid var(--border);
       color: var(--text-secondary);
       padding: 0.4rem 0.8rem;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-    .toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .toggle-btn.done {
-      background: rgba(0,230,118,0.1);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .exercises-list { padding: 0.5rem 0; }
-    .exercise-item {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 1rem;
-      align-items: center;
-      padding: 0.85rem 1.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.03);
-      transition: background 0.2s;
-    }
-    .exercise-item:last-child { border-bottom: none; }
-    .exercise-item:hover { background: rgba(255,255,255,0.02); }
-
-    .ex-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      display: block;
-    }
-    .ex-desc {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      display: block;
-      margin-top: 2px;
-    }
-    .ex-details {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .ex-badge {
-      background: rgba(255,255,255,0.06);
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.75rem;
-      font-weight: 600;
-      white-space: nowrap;
+      cursor: pointer;
     }
-    .ex-badge.sets { color: var(--accent); }
-    .ex-badge.reps { color: var(--info); }
-    .ex-badge.rest { color: var(--warning); }
+    .btn-sm.active { background: var(--accent); color: black; border-color: var(--accent); }
 
-    .difficulty {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 0.2rem 0.5rem;
+    .ex-gif-preview {
+      margin-top: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: black;
+    }
+    .ex-gif-preview img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
+
+    .ex-log-inline {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    .log-row { display: flex; gap: 8px; align-items: center; }
+    .sm-input {
+      width: 60px;
+      padding: 0.4rem;
       border-radius: 4px;
-    }
-    .difficulty[data-level="BEGINNER"] { color: var(--success); background: rgba(105,240,174,0.1); }
-    .difficulty[data-level="INTERMEDIATE"] { color: var(--warning); background: rgba(255,171,64,0.1); }
-    .difficulty[data-level="ADVANCED"] { color: var(--danger); background: rgba(255,82,82,0.1); }
-
-    .plan-actions {
+      background: #000;
+      border: 1px solid var(--border);
+      color: white;
       text-align: center;
-      padding: 2rem 0;
+      font-size: 0.8rem;
+    }
+    .btn-save {
+      background: var(--accent);
+      color: black;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .pr-badge {
+      margin-top: 0.5rem;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
     }
 
-    @media (max-width: 768px) {
-      .exercise-item {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-      }
-      .ex-details { flex-wrap: wrap; }
-      .day-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-down { animation: slideDown 0.3s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+      animation: fadeIn 0.5s ease-out forwards;
     }
   `]
 })
 export class PlanComponent implements OnInit {
-    plan: WorkoutPlanResponse | null = null;
-    loading = true;
+  plan: WorkoutPlanResponse | null = null;
+  loading = true;
+  showGif: { [key: number]: boolean } = {};
+  showLog: { [key: number]: boolean } = {};
+  logFormData: { [key: number]: { setNumber: number, reps: number, weightLifted: number } } = {};
+  prMessage: { [key: number]: string } = {};
 
-    constructor(private api: ApiService) { }
+  constructor(private api: ApiService) { }
 
-    ngOnInit() {
-        this.loadPlan();
-    }
+  ngOnInit() {
+    this.loadPlan();
+  }
 
-    loadPlan() {
-        this.loading = true;
-        this.api.getLatestPlan().subscribe({
-            next: (plan) => {
-                this.plan = plan;
-                this.loading = false;
-            },
-            error: () => {
-                this.plan = null;
-                this.loading = false;
-            }
-        });
-    }
+  loadPlan() {
+    this.loading = true;
+    this.api.getLatestPlan().subscribe({
+      next: (plan) => {
+        this.plan = plan;
+        this.initializeLogForms();
+        this.loading = false;
+      },
+      error: () => {
+        this.plan = null;
+        this.loading = false;
+      }
+    });
+  }
 
-    toggleDay(day: any) {
-        this.api.toggleDay(day.id).subscribe({
-            next: () => {
-                day.completed = !day.completed;
-            }
-        });
-    }
+  initializeLogForms() {
+    if (!this.plan || !this.plan.days) return;
+    this.plan.days.forEach(day => {
+      day.exercises.forEach(ex => {
+        if (!this.logFormData[ex.id]) {
+          this.logFormData[ex.id] = {
+            setNumber: 1,
+            reps: ex.reps || 10,
+            weightLifted: 0
+          };
+        }
+      });
+    });
+  }
+
+  toggleDay(day: any) {
+    this.api.toggleDay(day.id).subscribe({
+      next: () => {
+        day.completed = !day.completed;
+      }
+    });
+  }
+
+  toggleGif(exerciseId: number) {
+    this.showGif[exerciseId] = !this.showGif[exerciseId];
+    if (this.showGif[exerciseId]) this.showLog[exerciseId] = false;
+  }
+
+  toggleLog(exerciseId: number) {
+    this.showLog[exerciseId] = !this.showLog[exerciseId];
+    if (this.showLog[exerciseId]) this.showGif[exerciseId] = false;
+  }
+
+  submitLog(uiExerciseId: number, dayId: number, baseExerciseId: number) {
+    const data = this.logFormData[uiExerciseId];
+    const logReq: WorkoutLogRequest = {
+      date: new Date().toISOString().split('T')[0],
+      workoutDayId: dayId,
+      exerciseId: baseExerciseId,
+      sets: [
+        {
+          setNumber: data.setNumber,
+          reps: data.reps,
+          weightLifted: data.weightLifted
+        }
+      ]
+    };
+
+    this.api.logWorkout(logReq).subscribe({
+      next: (res) => {
+        const setRes = res.sets[0];
+        if (setRes && setRes.isPersonalRecord) {
+          this.prMessage[uiExerciseId] = `🎉 Great job! That's a new Personal Record! 🎉`;
+          setTimeout(() => delete this.prMessage[uiExerciseId], 5000);
+        }
+
+        // Setup for next set
+        this.logFormData[uiExerciseId].setNumber++;
+      },
+      error: (err) => {
+        console.error('Error logging workout', err);
+      }
+    });
+  }
 }

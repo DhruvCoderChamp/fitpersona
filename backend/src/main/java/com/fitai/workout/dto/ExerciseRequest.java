@@ -25,4 +25,6 @@ public class ExerciseRequest {
     private Integer defaultSets;
     private Integer defaultReps;
     private Integer defaultRestSeconds;
+
+    private String gifUrl;
 }

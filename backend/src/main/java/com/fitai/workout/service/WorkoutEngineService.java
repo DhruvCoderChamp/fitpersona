@@ -1,7 +1,6 @@
 package com.fitai.workout.service;
 
-import com.fitai.workout.dto.WorkoutPlanResponse;
-import com.fitai.workout.dto.WorkoutPreferenceRequest;
+import com.fitai.workout.dto.*;
 import com.fitai.workout.entity.*;
 import com.fitai.workout.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +34,56 @@ public class WorkoutEngineService {
                 .build();
 
         return workoutPreferenceRepository.save(pref);
+    }
+
+    @Transactional
+    public WorkoutPlanResponse createManualPlan(String email, ManualWorkoutPlanRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        WorkoutPlan plan = WorkoutPlan.builder()
+                .user(user)
+                .planName(request.getPlanName())
+                .generatedDate(java.time.LocalDate.now())
+                .build();
+
+        List<WorkoutDay> workoutDays = new ArrayList<>();
+        for (ManualWorkoutPlanRequest.ManualWorkoutDayRequest dayReq : request.getDays()) {
+            String label = dayReq.getMuscleGroupLabel() != null && !dayReq.getMuscleGroupLabel().isEmpty()
+                    ? dayReq.getMuscleGroupLabel()
+                    : "Day " + dayReq.getDayNumber();
+
+            WorkoutDay day = WorkoutDay.builder()
+                    .workoutPlan(plan)
+                    .dayNumber(dayReq.getDayNumber())
+                    .muscleGroupLabel(label)
+                    .completed(false)
+                    .build();
+
+            List<WorkoutExercise> exercises = new ArrayList<>();
+            int orderIndex = 0;
+            for (ManualWorkoutPlanRequest.ManualWorkoutExerciseRequest exReq : dayReq.getExercises()) {
+                Exercise exercise = exerciseRepository.findById(exReq.getExerciseId())
+                        .orElseThrow(() -> new RuntimeException("Exercise not found: " + exReq.getExerciseId()));
+
+                WorkoutExercise we = WorkoutExercise.builder()
+                        .workoutDay(day)
+                        .exercise(exercise)
+                        .sets(exReq.getSets())
+                        .reps(exReq.getReps())
+                        .restTimeSeconds(exReq.getRestTimeSeconds())
+                        .orderIndex(orderIndex++)
+                        .build();
+                exercises.add(we);
+            }
+            day.setExercises(exercises);
+            workoutDays.add(day);
+        }
+
+        plan.setWorkoutDays(workoutDays);
+        plan = workoutPlanRepository.save(plan);
+
+        return mapToResponse(plan);
     }
 
     @Transactional
@@ -112,7 +161,7 @@ public class WorkoutEngineService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        WorkoutPlan plan = workoutPlanRepository.findTopByUserIdOrderByGeneratedDateDesc(user.getId())
+        WorkoutPlan plan = workoutPlanRepository.findTopByUserIdOrderByIdDesc(user.getId())
                 .orElseThrow(() -> new RuntimeException("No workout plan found. Generate one first."));
 
         return mapToResponse(plan);
@@ -280,6 +329,10 @@ public class WorkoutEngineService {
                                         .sets(we.getSets())
                                         .reps(we.getReps())
                                         .restTimeSeconds(we.getRestTimeSeconds())
+                                        .gifUrl(we.getExercise().getGifUrl())
+                                        .instructions(we.getExercise().getInstructions())
+                                        .commonMistakes(we.getExercise().getCommonMistakes())
+                                        .baseExerciseId(we.getExercise().getId())
                                         .build())
                                 .collect(Collectors.toList()))
                         .build()).collect(Collectors.toList()))

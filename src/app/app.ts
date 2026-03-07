@@ -10,14 +10,16 @@ import { AuthService } from './core/auth.service';
   template: `
     <nav class="navbar" *ngIf="auth.isLoggedIn()">
       <div class="nav-brand" routerLink="/dashboard">
-        <span class="brand-icon">🏋️</span>
-        <span class="brand-text">FitAI</span>
+        <span class="brand-icon">⚡</span>
+        <span class="brand-text">FitPersona</span>
       </div>
       <div class="nav-links">
         <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
         <a routerLink="/workout/preferences" routerLinkActive="active">New Plan</a>
         <a routerLink="/workout/plan" routerLinkActive="active">My Plan</a>
-        <a routerLink="/diet/form" routerLinkActive="active">Diet Plan</a>
+        <a routerLink="/diet/plan" routerLinkActive="active">Diet Plan</a>
+        <a routerLink="/profile" routerLinkActive="active">My Profile</a>
+        <a routerLink="/gallery" routerLinkActive="active">Progress Gallery</a>
         <a routerLink="/admin/exercises" routerLinkActive="active" *ngIf="auth.isAdmin()">Admin</a>
         <button class="btn-logout" (click)="logout()">Logout</button>
       </div>

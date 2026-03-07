@@ -32,6 +32,7 @@ public class ExerciseService {
                 .defaultSets(request.getDefaultSets() != null ? request.getDefaultSets() : 3)
                 .defaultReps(request.getDefaultReps() != null ? request.getDefaultReps() : 10)
                 .defaultRestSeconds(request.getDefaultRestSeconds() != null ? request.getDefaultRestSeconds() : 60)
+                .gifUrl(request.getGifUrl())
                 .build();
         return exerciseRepository.save(exercise);
     }
@@ -48,6 +49,7 @@ public class ExerciseService {
         exercise.setDefaultSets(request.getDefaultSets());
         exercise.setDefaultReps(request.getDefaultReps());
         exercise.setDefaultRestSeconds(request.getDefaultRestSeconds());
+        exercise.setGifUrl(request.getGifUrl());
 
         return exerciseRepository.save(exercise);
     }

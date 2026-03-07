@@ -41,5 +41,9 @@ public class WorkoutPlanResponse {
         private Integer sets;
         private Integer reps;
         private Integer restTimeSeconds;
+        private String gifUrl;
+        private String instructions;
+        private String commonMistakes;
+        private Long baseExerciseId;
     }
 }

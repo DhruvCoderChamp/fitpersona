@@ -4,14 +4,14 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/auth.service';
 
 @Component({
-    selector: 'app-landing',
-    standalone: true,
-    imports: [RouterLink, CommonModule],
-    template: `
+  selector: 'app-landing',
+  standalone: true,
+  imports: [RouterLink, CommonModule],
+  template: `
     <div class="hero">
       <div class="hero-bg"></div>
       <div class="hero-content animate-fade-in-up">
-        <div class="hero-badge">🏋️ AI-POWERED FITNESS</div>
+        <div class="hero-badge">⚡ THE ULTIMATE AI FITNESS APP</div>
         <h1 class="hero-title">
           Transform Your Body with
           <span class="gradient-text">Intelligent Workouts</span>
@@ -52,13 +52,52 @@ import { AuthService } from '../../core/auth.service';
       </div>
 
       <div class="features-section">
-        <h2 class="section-title">Why <span class="gradient-text">FitAI</span>?</h2>
+        <h2 class="section-title">Why <span class="gradient-text">FitPersona</span>?</h2>
         <div class="features-grid">
           <div class="feature-card" *ngFor="let f of features; let i = index"
                [style.animation-delay]="(i * 0.1) + 's'">
             <div class="feature-icon">{{f.icon}}</div>
             <h3>{{f.title}}</h3>
             <p>{{f.desc}}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials-section">
+        <h2 class="section-title">Real People, <span class="gradient-text">Real Results</span></h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="quote-icon">"</div>
+            <p class="testimonial-text">FitPersona completely changed how I train. The AI plans adapt to my busy schedule, and the progress tracking keeps me hooked!</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">👨🏽‍rt</div>
+              <div class="author-info">
+                <h4>David R.</h4>
+                <span>Gained 10lbs Muscle</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="quote-icon">"</div>
+            <p class="testimonial-text">I've never been stronger. It feels like having a personal trainer in my pocket who knows exactly when to push me to my next PR.</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">👩🏻‍rt</div>
+              <div class="author-info">
+                <h4>Sarah M.</h4>
+                <span>Improved Strength</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="quote-icon">"</div>
+            <p class="testimonial-text">The custom workout builder is legendary. Being able to mix AI suggestions with my own favorite exercises is a game changer.</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">🧑🏿‍rt</div>
+              <div class="author-info">
+                <h4>Marcus T.</h4>
+                <span>Lost 15lbs Fat</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -72,7 +111,7 @@ import { AuthService } from '../../core/auth.service';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .hero {
       min-height: 100vh;
       position: relative;
@@ -204,6 +243,74 @@ import { AuthService } from '../../core/auth.service';
       font-size: 0.9rem;
     }
 
+    .testimonials-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .testimonial-card {
+      background: linear-gradient(145deg, rgba(20,20,20,0.8) 0%, rgba(10,10,10,0.9) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0,230,118,0.15);
+      border-color: rgba(0,230,118,0.3);
+    }
+    .quote-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 4rem;
+      font-family: serif;
+      color: rgba(0,230,118,0.1);
+      line-height: 1;
+    }
+    .testimonial-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 1.5rem;
+    }
+    .author-avatar {
+      font-size: 2.5rem;
+      background: rgba(255,255,255,0.05);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .author-info h4 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+    .author-info span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
     .cta-section {
       text-align: center;
       padding: 4rem 2rem 6rem;
@@ -229,14 +336,14 @@ import { AuthService } from '../../core/auth.service';
   `]
 })
 export class LandingComponent {
-    features = [
-        { icon: '🎯', title: 'Personalized Plans', desc: 'Day-wise workout splits tailored to your fitness level and goals' },
-        { icon: '💪', title: '7 Muscle Groups', desc: 'Target chest, back, legs, shoulders, biceps, triceps, and core' },
-        { icon: '📊', title: 'Progress Tracking', desc: 'Track completed workouts, calories burned, and weekly progress' },
-        { icon: '🏠', title: 'Any Equipment', desc: 'Plans for gym, home workouts, or no equipment at all' },
-        { icon: '🧠', title: 'Smart Engine', desc: 'AI-ready recommendation engine with adaptive intensity' },
-        { icon: '📱', title: 'Mobile Ready', desc: 'Beautiful responsive design that works on any device' }
-    ];
+  features = [
+    { icon: '🎯', title: 'Personalized Plans', desc: 'Day-wise workout splits tailored to your fitness level and goals' },
+    { icon: '💪', title: '7 Muscle Groups', desc: 'Target chest, back, legs, shoulders, biceps, triceps, and core' },
+    { icon: '📊', title: 'Progress Tracking', desc: 'Track completed workouts, calories burned, and weekly progress' },
+    { icon: '🏠', title: 'Any Equipment', desc: 'Plans for gym, home workouts, or no equipment at all' },
+    { icon: '🧠', title: 'Smart Engine', desc: 'AI-ready recommendation engine with adaptive intensity' },
+    { icon: '📱', title: 'Mobile Ready', desc: 'Beautiful responsive design that works on any device' }
+  ];
 
-    constructor(public auth: AuthService) { }
+  constructor(public auth: AuthService) { }
 }

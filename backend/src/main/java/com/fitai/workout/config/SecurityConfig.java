@@ -28,77 +28,77 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
+        private final JwtAuthFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .csrf(csrf -> csrf.disable())
+                                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/uploads/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/exercises/**").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/exercises/**").permitAll()
+                                                .requestMatchers("/h2-console/**").permitAll()
 
-                        .requestMatchers("/h2-console/**").permitAll()
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .anyRequest().authenticated())
 
-                        .anyRequest().authenticated())
+                                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
 
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                                .addFilterBefore(jwtAuthFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
 
-                .addFilterBefore(jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                return http.build();
+        }
 
-        return http.build();
-    }
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
 
-        CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOriginPatterns(List.of(
+                                "https://fitpersona.in",
+                                "https://www.fitpersona.in",
+                                "http://fitpersona.in",
+                                "http://www.fitpersona.in",
+                                "http://165.22.218.68",
+                                "http://localhost:*"));
 
-        config.setAllowedOriginPatterns(List.of(
-                "https://fitpersona.in",
-                "https://www.fitpersona.in",
-                "http://fitpersona.in",
-                "http://www.fitpersona.in",
-                "http://165.22.218.68",
-                "http://localhost:*"));
+                config.setAllowedMethods(Arrays.asList(
+                                "GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        config.setAllowedMethods(Arrays.asList(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList(
+                                "Authorization",
+                                "Content-Type",
+                                "X-Requested-With",
+                                "Accept"));
 
-        config.setAllowedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-Requested-With",
-                "Accept"));
+                config.setAllowCredentials(true);
 
-        config.setAllowCredentials(true);
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
 
-        source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 
-        return source;
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(
+                        AuthenticationConfiguration config) throws Exception {
+                return config.getAuthenticationManager();
+        }
 }

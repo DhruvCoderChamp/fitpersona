@@ -32,6 +32,14 @@ export interface UserProfile {
     role: string;
 }
 
+export interface UserProfileUpdateRequest {
+    name?: string;
+    age?: number;
+    gender?: string;
+    height?: number;
+    weight?: number;
+}
+
 export interface WorkoutPreferenceRequest {
     level: 'BEGINNER' | 'INTERMEDIATE' | 'PROFESSIONAL';
     goal: 'MUSCLE_GAIN' | 'FAT_LOSS' | 'STRENGTH' | 'ENDURANCE';
@@ -66,6 +74,38 @@ export interface WorkoutExerciseResponse {
     sets: number;
     reps: number;
     restTimeSeconds: number;
+    gifUrl?: string;
+    instructions?: string;
+    commonMistakes?: string;
+    baseExerciseId: number;
+}
+
+export interface WorkoutLogRequest {
+    date: string;
+    workoutDayId?: number;
+    exerciseId: number;
+    sets: SetLogRequest[];
+}
+
+export interface SetLogRequest {
+    setNumber: number;
+    reps: number;
+    weightLifted: number;
+}
+
+export interface WorkoutLogResponse {
+    exerciseName: string;
+    exerciseId: number;
+    date: string;
+    sets: SetLogResponse[];
+}
+
+export interface SetLogResponse {
+    id: number;
+    setNumber: number;
+    reps: number;
+    weightLifted: number;
+    isPersonalRecord: boolean;
 }
 
 export interface DashboardResponse {
@@ -91,6 +131,9 @@ export interface Exercise {
     defaultSets: number;
     defaultReps: number;
     defaultRestSeconds: number;
+    gifUrl?: string;
+    instructions?: string;
+    commonMistakes?: string;
 }
 
 export interface DietPlanRequest {
@@ -122,4 +165,11 @@ export interface MealResponse {
     description: string;
     calories: number;
     items: string[];
+}
+
+export interface ProgressPhotoResponse {
+    id: number;
+    photoUrl: string;
+    notes?: string;
+    uploadDate: string;
 }

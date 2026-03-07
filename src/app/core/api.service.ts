@@ -4,12 +4,15 @@ import { Observable } from 'rxjs';
 import {
     WorkoutPreferenceRequest, WorkoutPlanResponse,
     DashboardResponse, Exercise,
-    DietPlanRequest, DietPlanResponse
+    DietPlanRequest, DietPlanResponse,
+    WorkoutLogRequest, WorkoutLogResponse,
+    UserProfile, UserProfileUpdateRequest,
+    ProgressPhotoResponse
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-    private baseUrl = '/api';
+    private baseUrl = 'http://localhost:8080/api';
 
     constructor(private http: HttpClient) { }
 
@@ -26,12 +29,32 @@ export class ApiService {
         return this.http.get<WorkoutPlanResponse>(`${this.baseUrl}/workout/plan`);
     }
 
+    createManualPlan(req: any): Observable<WorkoutPlanResponse> {
+        return this.http.post<WorkoutPlanResponse>(`${this.baseUrl}/workout/manual`, req);
+    }
+
     getAllPlans(): Observable<WorkoutPlanResponse[]> {
         return this.http.get<WorkoutPlanResponse[]>(`${this.baseUrl}/workout/plans`);
     }
 
     toggleDay(dayId: number): Observable<any> {
         return this.http.put(`${this.baseUrl}/workout/day/${dayId}/toggle`, {});
+    }
+
+    logWorkout(req: WorkoutLogRequest): Observable<WorkoutLogResponse> {
+        return this.http.post<WorkoutLogResponse>(`${this.baseUrl}/workout/log`, req);
+    }
+
+    getWorkoutHistory(date: string): Observable<WorkoutLogResponse[]> {
+        return this.http.get<WorkoutLogResponse[]>(`${this.baseUrl}/workout/history?date=${date}`);
+    }
+
+    getExerciseProgress(exerciseId: number): Observable<WorkoutLogResponse[]> {
+        return this.http.get<WorkoutLogResponse[]>(`${this.baseUrl}/workout/progress/${exerciseId}`);
+    }
+
+    getWorkoutDates(): Observable<string[]> {
+        return this.http.get<string[]>(`${this.baseUrl}/workout/dates`);
     }
 
     // Dashboard
@@ -59,5 +82,26 @@ export class ApiService {
     // Diet Plan
     generateDietPlan(req: DietPlanRequest): Observable<DietPlanResponse> {
         return this.http.post<DietPlanResponse>(`${this.baseUrl}/diet/generate`, req);
+    }
+
+    // User Profile
+    getUserProfile(): Observable<UserProfile> {
+        return this.http.get<UserProfile>(`${this.baseUrl}/user/profile`);
+    }
+
+    updateProfile(req: UserProfileUpdateRequest): Observable<UserProfile> {
+        return this.http.put<UserProfile>(`${this.baseUrl}/user/profile`, req);
+    }
+
+    // Progress Photos
+    getPhotos(): Observable<ProgressPhotoResponse[]> {
+        return this.http.get<ProgressPhotoResponse[]>(`${this.baseUrl}/progress/photos`);
+    }
+
+    uploadPhoto(file: File, notes?: string): Observable<ProgressPhotoResponse> {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (notes) formData.append('notes', notes);
+        return this.http.post<ProgressPhotoResponse>(`${this.baseUrl}/progress/photos/upload`, formData);
     }
 }

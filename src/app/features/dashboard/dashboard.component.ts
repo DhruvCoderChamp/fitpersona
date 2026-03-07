@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 import { ApiService } from '../../core/api.service';
-import { DashboardResponse } from '../../models/models';
+import { DashboardResponse, WorkoutLogResponse, Exercise } from '../../models/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule, BaseChartDirective],
   template: `
     <div class="page-container">
       <div class="dash-header animate-fade-in-up">
@@ -63,7 +66,7 @@ import { DashboardResponse } from '../../models/models';
 
         <!-- Progress Section -->
         <div class="progress-section card animate-fade-in-up">
-          <h3>📊 Weekly Progress</h3>
+          <h3>📊 Weekly Plan Completion</h3>
           <div class="progress-bar-container">
             <div class="progress-bar">
               <div class="progress-fill" [style.width.%]="data.completionPercentage"></div>
@@ -72,6 +75,54 @@ import { DashboardResponse } from '../../models/models';
           </div>
           <div class="progress-stats">
             <span>✅ {{data.completedDays}} / {{data.totalWorkoutDays}} days completed</span>
+          </div>
+        </div>
+
+        <!-- Strength Progress Graph -->
+        <div class="strength-graph-section card animate-fade-in-up">
+          <div class="section-header">
+            <h3>📈 Strength Progression</h3>
+            <select class="form-select exercise-select" [(ngModel)]="selectedExerciseId" (change)="loadExerciseProgress()">
+              <option [ngValue]="null">Select Exercise</option>
+              <option *ngFor="let ex of exerciseOptions" [ngValue]="ex.id">{{ex.name}}</option>
+            </select>
+          </div>
+          
+          <div *ngIf="!selectedExerciseId" class="empty-state">
+            <p>Select an exercise to view your strength progress over time.</p>
+          </div>
+          
+          <div *ngIf="selectedExerciseId && lineChartData.labels?.length === 0" class="empty-state">
+            <p>No logged data for this exercise yet.</p>
+          </div>
+
+          <div class="chart-wrapper" *ngIf="selectedExerciseId && lineChartData.labels!.length > 0">
+            <canvas baseChart
+                    [data]="lineChartData"
+                    [options]="lineChartOptions"
+                    [type]="lineChartType">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Workout History -->
+        <div class="history-section card animate-fade-in-up">
+          <h3>🕒 Recent Workout History</h3>
+          <div *ngIf="workoutHistory.length === 0" class="empty-state">
+            <p>No workout sessions logged yet.</p>
+          </div>
+          
+          <div *ngFor="let entry of workoutHistory" class="history-card">
+            <div class="history-header">
+              <h4>{{entry.exerciseName}}</h4>
+              <span class="history-date">{{entry.date | date:'mediumDate'}}</span>
+            </div>
+            <ul class="history-sets">
+              <li *ngFor="let set of entry.sets">
+                Set {{set.setNumber}}: {{set.weightLifted}} kg × {{set.reps}} reps
+                <span *ngIf="set.isPersonalRecord" class="pr-badge">🏆 PR</span>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -188,10 +239,75 @@ import { DashboardResponse } from '../../models/models';
     .stat-badge[data-type="underweight"] { background: rgba(64,196,255,0.15); color: var(--info); }
     .stat-badge[data-type="obese"] { background: rgba(255,82,82,0.15); color: var(--danger); }
 
-    .progress-section {
+    .progress-section, .strength-graph-section, .history-section {
       margin-bottom: 1.5rem;
     }
-    .progress-section h3 { margin-bottom: 1rem; }
+    .progress-section h3, .strength-graph-section h3, .history-section h3 { margin-bottom: 1rem; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .exercise-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+    .exercise-select option {
+      color: #000;
+      background: #fff;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    .chart-wrapper {
+      background: rgba(0,0,0,0.2);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .history-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+      padding-bottom: 0.5rem;
+    }
+    .history-header h4 { margin: 0; color: var(--accent); }
+    .history-date { font-size: 0.8rem; color: var(--text-muted); }
+    .history-sets {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .history-sets li {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      padding: 0.25rem 0;
+    }
+    .pr-badge {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: black;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+    }
     .progress-bar-container {
       display: flex;
       align-items: center;
@@ -305,10 +421,47 @@ import { DashboardResponse } from '../../models/models';
   `]
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   data: DashboardResponse | null = null;
   loading = true;
   waterDrank = 0;
   waterGlasses: number[] = [];
+
+  // Chart configuration
+  public lineChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Weight Lifted (kg)',
+        backgroundColor: 'rgba(0, 230, 118, 0.2)',
+        borderColor: '#00e676',
+        pointBackgroundColor: '#00e676',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#00e676',
+        fill: 'origin',
+        tension: 0.4
+      }
+    ]
+  };
+  public lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#ccc' } },
+      x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#ccc' } }
+    },
+    plugins: {
+      legend: { labels: { color: '#fff', font: { family: 'Outfit, sans-serif' } } }
+    }
+  };
+  public lineChartType: ChartType = 'line';
+
+  // Customization state
+  exerciseOptions: Exercise[] = [];
+  selectedExerciseId: number | null = null;
+  workoutHistory: WorkoutLogResponse[] = [];
 
   bmiRanges = [
     { label: 'Underweight', range: '< 18.5', color: 'rgba(64,196,255,0.2)' },
@@ -320,6 +473,12 @@ export class DashboardComponent implements OnInit {
   constructor(private api: ApiService) { }
 
   ngOnInit() {
+    this.loadDashboardData();
+    this.loadExercises();
+    this.loadRecentHistory();
+  }
+
+  loadDashboardData() {
     this.api.getDashboard().subscribe({
       next: (data) => {
         this.data = data;
@@ -327,6 +486,47 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  loadExercises() {
+    this.api.getAllExercises().subscribe(ex => this.exerciseOptions = ex);
+  }
+
+  loadRecentHistory() {
+    const today = new Date().toISOString().split('T')[0];
+    this.api.getWorkoutHistory(today).subscribe(history => {
+      this.workoutHistory = history;
+    });
+  }
+
+  loadExerciseProgress() {
+    if (!this.selectedExerciseId) return;
+
+    this.api.getExerciseProgress(this.selectedExerciseId).subscribe(progress => {
+      const labels: string[] = [];
+      const dataPoints: number[] = [];
+
+      progress.forEach(log => {
+        // Plot every single set logged for the day
+        log.sets.forEach(set => {
+          labels.push(`${log.date} (Set ${set.setNumber})`);
+          dataPoints.push(set.weightLifted);
+        });
+      });
+
+      // Create a completely new object so ChartJS detects the change
+      this.lineChartData = {
+        labels: labels,
+        datasets: [
+          {
+            ...this.lineChartData.datasets[0],
+            data: dataPoints
+          }
+        ]
+      };
+
+      this.chart?.update();
     });
   }
 

@@ -32,9 +32,18 @@ public class Exercise {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "gif_url", length = 500)
+    private String gifUrl;
+
     private Integer defaultSets;
     private Integer defaultReps;
     private Integer defaultRestSeconds;
+
+    @Column(columnDefinition = "TEXT")
+    private String instructions;
+
+    @Column(columnDefinition = "TEXT")
+    private String commonMistakes;
 
     public enum MuscleGroup {
         CHEST, TRICEPS, BICEPS, LEGS, BACK, SHOULDERS, CORE

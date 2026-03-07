@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> {
     List<WorkoutPlan> findByUserIdOrderByGeneratedDateDesc(Long userId);
-    Optional<WorkoutPlan> findTopByUserIdOrderByGeneratedDateDesc(Long userId);
+
+    Optional<WorkoutPlan> findTopByUserIdOrderByIdDesc(Long userId);
 }
