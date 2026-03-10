@@ -206,7 +206,12 @@ export class GalleryComponent implements OnInit {
     }
 
     getFullUrl(url: string) {
-        return `http://localhost:8080${url}`;
+        if (!url) return '';
+        if (url.startsWith('http')) {
+            return url;
+        }
+        // Fallback for local uploads when AWS is disabled
+        return `/api${url}`;
     }
 
     toggleComparisonMode() {
