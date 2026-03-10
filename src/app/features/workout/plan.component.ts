@@ -294,15 +294,15 @@ import { WorkoutPlanResponse, WorkoutLogRequest } from '../../models/models';
     }
 
     @media (max-width: 600px) {
-      .day-header { flex-direction: column; gap: 1rem; text-align: center; }
+      .day-header { flex-direction: column; gap: 0.8rem; text-align: center; }
       .toggle-btn { width: 100%; justify-content: center; }
-      .exercise-card { margin: 0.5rem; }
-      .exercise-main { flex-direction: column; gap: 1rem; align-items: flex-start; }
-      .ex-actions { width: 100%; justify-content: space-between; }
-      .btn-sm { flex: 1; text-align: center; padding: 0.6rem; }
-      .log-row { flex-wrap: wrap; }
-      .sm-input { flex: 1; min-width: 70px; }
-      .btn-save { width: 100%; margin-top: 0.5rem; }
+      .exercise-card { margin: 0.5rem 0; padding: 0.8rem; border-radius: 8px;}
+      .exercise-main { flex-direction: column; gap: 0.8rem; align-items: stretch; }
+      .ex-actions { width: 100%; display: flex; gap: 0.5rem; justify-content: stretch; }
+      .btn-sm { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.85rem;}
+      .log-row { flex-wrap: wrap; gap: 5px; justify-content: space-between; }
+      .sm-input { flex: 1; min-width: 0; padding: 0.5rem; }
+      .btn-save { width: 100%; margin-top: 0.8rem; padding: 0.8rem; }
     }
   `]
 })

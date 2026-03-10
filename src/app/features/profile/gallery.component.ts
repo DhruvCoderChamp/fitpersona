@@ -147,8 +147,17 @@ import { ProgressPhotoResponse } from '../../models/models';
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 768px) {
-      .comparison-display { grid-template-columns: 1fr; }
+      .page-container { padding: 1rem; }
+      .comparison-display { grid-template-columns: 1fr; gap: 1.5rem; }
       .comparison-selectors { flex-direction: column; gap: 1rem; }
+      .selector { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+      .selector select { width: 100%; }
+      .upload-controls { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+      .upload-controls .btn, .upload-controls input[type="text"] { width: 100%; box-sizing: border-box; }
+      .file-input-wrapper { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
+      .file-input-wrapper .btn { margin: 0; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .badge { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
     }
   `]
 })
