@@ -225,8 +225,13 @@ import { DashboardResponse, WorkoutLogResponse, Exercise } from '../../models/mo
     .action-text { font-weight: 600; }
 
     @media (max-width: 768px) {
-      .dash-header { flex-direction: column; gap: 1rem; }
+      .dash-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
       .bmi-scale { flex-direction: column; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .water-glasses { justify-content: flex-start; }
+      .progress-bar-container { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .progress-bar { width: 100%; }
     }
   `]
 })

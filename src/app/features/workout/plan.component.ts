@@ -292,6 +292,18 @@ import { WorkoutPlanResponse, WorkoutLogRequest } from '../../models/models';
     .animate-fade-in-up {
       animation: fadeIn 0.5s ease-out forwards;
     }
+
+    @media (max-width: 600px) {
+      .day-header { flex-direction: column; gap: 1rem; text-align: center; }
+      .toggle-btn { width: 100%; justify-content: center; }
+      .exercise-card { margin: 0.5rem; }
+      .exercise-main { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .ex-actions { width: 100%; justify-content: space-between; }
+      .btn-sm { flex: 1; text-align: center; padding: 0.6rem; }
+      .log-row { flex-wrap: wrap; }
+      .sm-input { flex: 1; min-width: 70px; }
+      .btn-save { width: 100%; margin-top: 0.5rem; }
+    }
   `]
 })
 export class PlanComponent implements OnInit {

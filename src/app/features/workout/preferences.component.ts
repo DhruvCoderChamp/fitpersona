@@ -231,7 +231,10 @@ import { WorkoutPreferenceRequest } from '../../models/models';
     }
     @media (max-width: 600px) {
       .gender-grid { grid-template-columns: 1fr; }
-      .days-grid { grid-template-columns: repeat(2, 1fr); }
+      .days-grid { grid-template-columns: repeat(4, 1fr); gap: 0.25rem; }
+      .days-grid .option-card { padding: 0.5rem; }
+      .option-grid { grid-template-columns: 1fr; }
+      .muscle-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
     }
   `]
 })
