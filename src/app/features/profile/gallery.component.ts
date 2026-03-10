@@ -19,8 +19,8 @@ import { ProgressPhotoResponse } from '../../models/models';
         <h3>Upload New Photo</h3>
         <div class="upload-controls">
           <div class="file-input-wrapper">
-            <button class="btn btn-outline">Choose Photo</button>
-            <input type="file" (change)="onFileSelected($event)" accept="image/*">
+            <input type="file" id="fileUpload" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+            <label for="fileUpload" class="btn btn-outline" style="margin: 0; display: inline-block; text-align: center; cursor: pointer;">Choose Photo</label>
             <span class="file-name" *ngIf="selectedFile">{{selectedFile.name}}</span>
           </div>
           <input type="text" [(ngModel)]="notes" placeholder="Add a note (e.g., 'Morning weigh-in')" class="form-control">
@@ -96,10 +96,8 @@ import { ProgressPhotoResponse } from '../../models/models';
     .upload-section { margin-bottom: 2rem; }
     .upload-controls { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
     
-    .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
-    .file-input-wrapper input[type=file] {
-      position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
+    .file-input-wrapper { display: flex; align-items: center; gap: 1rem; }
+    .file-input-wrapper label { flex-shrink: 0; }
     .file-name { margin-left: 1rem; font-size: 0.9rem; color: var(--text-muted); }
 
     .comparison-section { margin-bottom: 2rem; }
@@ -155,7 +153,7 @@ import { ProgressPhotoResponse } from '../../models/models';
       .upload-controls { flex-direction: column; align-items: stretch; gap: 0.8rem; }
       .upload-controls .btn, .upload-controls input[type="text"] { width: 100%; box-sizing: border-box; }
       .file-input-wrapper { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
-      .file-input-wrapper .btn { margin: 0; }
+      .file-input-wrapper textarea, .file-input-wrapper label { margin: 0; width: 100%; box-sizing: border-box; }
       .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
       .badge { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
     }
