@@ -7,12 +7,12 @@ import {
     DietPlanRequest, DietPlanResponse,
     WorkoutLogRequest, WorkoutLogResponse,
     UserProfile, UserProfileUpdateRequest,
-    ProgressPhotoResponse
+    ProgressPhotoResponse, FeedbackRequest
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-    private baseUrl = 'http://localhost:8080/api';
+    private baseUrl = '/api';
 
     constructor(private http: HttpClient) { }
 
@@ -103,5 +103,10 @@ export class ApiService {
         formData.append('file', file);
         if (notes) formData.append('notes', notes);
         return this.http.post<ProgressPhotoResponse>(`${this.baseUrl}/progress/photos/upload`, formData);
+    }
+
+    // Feedback
+    submitFeedback(req: FeedbackRequest): Observable<any> {
+        return this.http.post(`${this.baseUrl}/feedback`, req);
     }
 }

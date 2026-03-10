@@ -70,7 +70,7 @@ import { AuthService } from '../../core/auth.service';
             <div class="quote-icon">"</div>
             <p class="testimonial-text">FitPersona completely changed how I train. The AI plans adapt to my busy schedule, and the progress tracking keeps me hooked!</p>
             <div class="testimonial-author">
-              <div class="author-avatar">👨🏽‍rt</div>
+              <div class="author-avatar">🏋️</div>
               <div class="author-info">
                 <h4>David R.</h4>
                 <span>Gained 10lbs Muscle</span>
@@ -81,7 +81,7 @@ import { AuthService } from '../../core/auth.service';
             <div class="quote-icon">"</div>
             <p class="testimonial-text">I've never been stronger. It feels like having a personal trainer in my pocket who knows exactly when to push me to my next PR.</p>
             <div class="testimonial-author">
-              <div class="author-avatar">👩🏻‍rt</div>
+              <div class="author-avatar">🧘</div>
               <div class="author-info">
                 <h4>Sarah M.</h4>
                 <span>Improved Strength</span>
@@ -92,7 +92,7 @@ import { AuthService } from '../../core/auth.service';
             <div class="quote-icon">"</div>
             <p class="testimonial-text">The custom workout builder is legendary. Being able to mix AI suggestions with my own favorite exercises is a game changer.</p>
             <div class="testimonial-author">
-              <div class="author-avatar">🧑🏿‍rt</div>
+              <div class="author-avatar">🤸</div>
               <div class="author-info">
                 <h4>Marcus T.</h4>
                 <span>Lost 15lbs Fat</span>

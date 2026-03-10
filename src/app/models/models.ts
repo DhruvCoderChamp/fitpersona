@@ -41,8 +41,9 @@ export interface UserProfileUpdateRequest {
 }
 
 export interface WorkoutPreferenceRequest {
+    gender: 'MALE' | 'FEMALE';
     level: 'BEGINNER' | 'INTERMEDIATE' | 'PROFESSIONAL';
-    goal: 'MUSCLE_GAIN' | 'FAT_LOSS' | 'STRENGTH' | 'ENDURANCE';
+    goal: 'MUSCLE_GAIN' | 'FAT_LOSS' | 'STRENGTH' | 'ENDURANCE' | 'TONING' | 'FLEXIBILITY' | 'POSTURE' | 'PRENATAL_SAFE';
     daysPerWeek: number;
     equipment: 'GYM' | 'HOME' | 'NO_EQUIPMENT';
     targetMuscleGroups: string[];
@@ -172,4 +173,10 @@ export interface ProgressPhotoResponse {
     photoUrl: string;
     notes?: string;
     uploadDate: string;
+}
+
+export interface FeedbackRequest {
+    category: string;
+    message: string;
+    rating: number;
 }

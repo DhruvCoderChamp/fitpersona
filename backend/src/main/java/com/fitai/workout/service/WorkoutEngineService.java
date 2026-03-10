@@ -26,6 +26,7 @@ public class WorkoutEngineService {
 
         WorkoutPreference pref = WorkoutPreference.builder()
                 .user(user)
+                .gender(request.getGender())
                 .level(request.getLevel())
                 .goal(request.getGoal())
                 .daysPerWeek(request.getDaysPerWeek())
@@ -94,22 +95,33 @@ public class WorkoutEngineService {
         WorkoutPreference pref = workoutPreferenceRepository.findTopByUserIdOrderByIdDesc(user.getId())
                 .orElseThrow(() -> new RuntimeException("No preferences found. Please set your preferences first."));
 
-        // Determine allowed difficulty levels based on fitness level
-        List<Exercise.Difficulty> allowedDifficulties = getAllowedDifficulties(pref.getLevel());
+        // Determine gender (fallback to user's profile gender)
+        String gender = pref.getGender() != null ? pref.getGender() : user.getGender();
+        boolean isFemale = "FEMALE".equalsIgnoreCase(gender);
 
-        // Create muscle group splits for the week
+        // Allowed difficulty levels based on fitness level
+        // PRENATAL_SAFE always uses BEGINNER only — no matter what level was picked
+        List<Exercise.Difficulty> allowedDifficulties =
+                (pref.getGoal() == WorkoutPreference.Goal.PRENATAL_SAFE)
+                ? List.of(Exercise.Difficulty.BEGINNER)
+                : getAllowedDifficulties(pref.getLevel());
+
+        // Muscle group splits for the week
         List<List<Exercise.MuscleGroup>> daySplits = createDaySplits(
                 pref.getTargetMuscleGroups(), pref.getDaysPerWeek());
 
         // Build the workout plan
         WorkoutPlan plan = WorkoutPlan.builder()
                 .user(user)
-                .planName(generatePlanName(pref))
-                .warmupSuggestion(getWarmupSuggestion(pref.getGoal()))
-                .cooldownSuggestion(getCooldownSuggestion(pref.getGoal()))
+                .planName(generatePlanName(pref, gender))
+                .warmupSuggestion(getWarmupSuggestion(pref.getGoal(), isFemale))
+                .cooldownSuggestion(getCooldownSuggestion(pref.getGoal(), isFemale))
                 .build();
 
         List<WorkoutDay> workoutDays = new ArrayList<>();
+
+        // Track used exercise IDs globally across ALL days to avoid repetition
+        Set<Long> usedExerciseIds = new HashSet<>();
 
         for (int dayIndex = 0; dayIndex < daySplits.size(); dayIndex++) {
             List<Exercise.MuscleGroup> dayMuscles = daySplits.get(dayIndex);
@@ -127,13 +139,18 @@ public class WorkoutEngineService {
             int orderIndex = 0;
 
             for (Exercise.MuscleGroup muscle : dayMuscles) {
-                List<Exercise> available = findExercises(muscle, pref.getEquipment(), allowedDifficulties);
-                int exercisesPerGroup = getExercisesPerGroup(pref.getGoal(), pref.getLevel());
-                List<Exercise> selected = selectExercises(available, exercisesPerGroup);
+                // For prenatal safe goal, use dedicated prenatal exercise finder
+                boolean isPrenatal = pref.getGoal() == WorkoutPreference.Goal.PRENATAL_SAFE;
+                List<Exercise> available = isPrenatal
+                        ? findPrenatalExercises(muscle)
+                        : findExercises(muscle, pref.getEquipment(), allowedDifficulties);
+                int exercisesPerGroup = getExercisesPerGroup(pref.getGoal(), pref.getLevel(), isFemale);
+                List<Exercise> selected = selectUniqueExercises(available, exercisesPerGroup, usedExerciseIds);
 
                 for (Exercise ex : selected) {
-                    int[] setsReps = getSetsAndReps(pref.getGoal(), pref.getLevel(), ex);
-                    int rest = getRestTime(pref.getGoal());
+                    usedExerciseIds.add(ex.getId());
+                    int[] setsReps = getSetsAndReps(pref.getGoal(), pref.getLevel(), ex, isFemale);
+                    int rest = getRestTime(pref.getGoal(), isFemale);
 
                     WorkoutExercise we = WorkoutExercise.builder()
                             .workoutDay(day)
@@ -185,7 +202,7 @@ public class WorkoutEngineService {
         day.setCompleted(!day.getCompleted());
     }
 
-    // -- Helper methods --
+    // ── Helper methods ────────────────────────────────────────────────────────
 
     private List<Exercise.Difficulty> getAllowedDifficulties(WorkoutPreference.FitnessLevel level) {
         return switch (level) {
@@ -200,12 +217,10 @@ public class WorkoutEngineService {
         List<List<Exercise.MuscleGroup>> splits = new ArrayList<>();
 
         if (muscles.size() <= days) {
-            // Spread muscles across days, filling extra days with repeated groups
             for (int i = 0; i < days; i++) {
                 splits.add(List.of(muscles.get(i % muscles.size())));
             }
         } else {
-            // Group muscles into days
             int groupSize = (int) Math.ceil((double) muscles.size() / days);
             for (int i = 0; i < days; i++) {
                 int start = i * groupSize;
@@ -224,7 +239,6 @@ public class WorkoutEngineService {
         List<Exercise> exercises = exerciseRepository.findByMuscleGroupAndEquipmentAndDifficultyIn(
                 muscle, equipment, difficulties);
 
-        // Fallback: if no exercises found with specific equipment, try all equipment
         if (exercises.isEmpty()) {
             exercises = exerciseRepository.findByMuscleGroupAndDifficultyIn(muscle, difficulties);
         }
@@ -232,7 +246,27 @@ public class WorkoutEngineService {
         return exercises;
     }
 
-    private int getExercisesPerGroup(WorkoutPreference.Goal goal, WorkoutPreference.FitnessLevel level) {
+    /**
+     * For PRENATAL_SAFE: first tries to find exercises whose name starts with "Prenatal"
+     * for that muscle group (ignoring equipment type since prenatal exercises are HOME/NO_EQUIPMENT).
+     * Falls back to general BEGINNER exercises for the muscle group if needed.
+     */
+    private List<Exercise> findPrenatalExercises(Exercise.MuscleGroup muscle) {
+        // Get all BEGINNER exercises for this muscle group, any equipment
+        List<Exercise> all = exerciseRepository.findByMuscleGroupAndDifficultyIn(
+                muscle, List.of(Exercise.Difficulty.BEGINNER));
+
+        // Priority: exercises with "Prenatal" in the name
+        List<Exercise> prenatal = all.stream()
+                .filter(e -> e.getName().startsWith("Prenatal") || e.getName().startsWith("Kegel"))
+                .collect(java.util.stream.Collectors.toList());
+
+        // If we have prenatal-specific ones, use them; otherwise fall back to any BEGINNER
+        return prenatal.isEmpty() ? all : prenatal;
+    }
+
+    private int getExercisesPerGroup(WorkoutPreference.Goal goal, WorkoutPreference.FitnessLevel level,
+            boolean isFemale) {
         int base = switch (level) {
             case BEGINNER -> 2;
             case INTERMEDIATE -> 3;
@@ -244,6 +278,11 @@ public class WorkoutEngineService {
             case STRENGTH -> base;
             case FAT_LOSS -> base;
             case ENDURANCE -> base - 1;
+            // Women-specific: lighter volume, more variety
+            case TONING -> base;
+            case FLEXIBILITY -> Math.max(base - 1, 1);
+            case POSTURE -> Math.max(base - 1, 1);
+            case PRENATAL_SAFE -> Math.max(base - 1, 1);
         };
     }
 
@@ -255,44 +294,89 @@ public class WorkoutEngineService {
         return shuffled.subList(0, Math.min(count, shuffled.size()));
     }
 
-    private int[] getSetsAndReps(WorkoutPreference.Goal goal, WorkoutPreference.FitnessLevel level, Exercise ex) {
+    /**
+     * Selects exercises that have NOT been used yet (globally across the whole plan).
+     * Falls back to allowing re-use if the pool is exhausted.
+     */
+    private List<Exercise> selectUniqueExercises(List<Exercise> available, int count,
+            Set<Long> usedExerciseIds) {
+        if (available.isEmpty())
+            return List.of();
+
+        // First try to pick only from unused exercises
+        List<Exercise> unused = available.stream()
+                .filter(ex -> !usedExerciseIds.contains(ex.getId()))
+                .collect(Collectors.toList());
+
+        // If not enough unused, allow re-use as a fallback
+        List<Exercise> pool = unused.size() >= count ? unused : available;
+
+        List<Exercise> shuffled = new ArrayList<>(pool);
+        Collections.shuffle(shuffled);
+        return shuffled.subList(0, Math.min(count, shuffled.size()));
+    }
+
+    private int[] getSetsAndReps(WorkoutPreference.Goal goal, WorkoutPreference.FitnessLevel level, Exercise ex,
+            boolean isFemale) {
         int sets = ex.getDefaultSets() != null ? ex.getDefaultSets() : 3;
         int reps = ex.getDefaultReps() != null ? ex.getDefaultReps() : 10;
 
+        // For female users, generally slightly lower weights, higher reps
+        int femaleRepBonus = isFemale ? 3 : 0;
+
         return switch (goal) {
-            case MUSCLE_GAIN -> new int[] { sets + 1, reps };
-            case STRENGTH -> new int[] { sets + 2, Math.max(reps - 4, 4) };
-            case FAT_LOSS -> new int[] { sets, reps + 5 };
-            case ENDURANCE -> new int[] { sets, reps + 8 };
+            case MUSCLE_GAIN -> new int[]{ sets + 1, reps + femaleRepBonus };
+            case STRENGTH -> new int[]{ sets + 2, Math.max(reps - 4, 4) };
+            case FAT_LOSS -> new int[]{ sets, reps + 5 + femaleRepBonus };
+            case ENDURANCE -> new int[]{ sets, reps + 8 + femaleRepBonus };
+            // Women-specific goals: moderate sets, higher reps with lighter weight
+            case TONING -> new int[]{ 3, 15 + femaleRepBonus };
+            case FLEXIBILITY -> new int[]{ 2, 12 };
+            case POSTURE -> new int[]{ 3, 12 };
+            case PRENATAL_SAFE -> new int[]{ 2, 10 };
         };
     }
 
-    private int getRestTime(WorkoutPreference.Goal goal) {
+    private int getRestTime(WorkoutPreference.Goal goal, boolean isFemale) {
         return switch (goal) {
             case STRENGTH -> 120;
             case MUSCLE_GAIN -> 90;
             case FAT_LOSS -> 45;
             case ENDURANCE -> 30;
+            case TONING -> 45;
+            case FLEXIBILITY -> 30;
+            case POSTURE -> 45;
+            case PRENATAL_SAFE -> 60;
         };
     }
 
-    private String generatePlanName(WorkoutPreference pref) {
-        return pref.getLevel().name().charAt(0) + pref.getLevel().name().substring(1).toLowerCase()
-                + " " + pref.getGoal().name().replace("_", " ")
-                + " - " + pref.getDaysPerWeek() + " Day Split";
+    private String generatePlanName(WorkoutPreference pref, String gender) {
+        String levelStr = capitalize(pref.getLevel().name());
+        String goalStr = pref.getGoal().name().replace("_", " ");
+        String genderTag = "FEMALE".equalsIgnoreCase(gender) ? "Women's " : "";
+        return genderTag + levelStr + " " + goalStr + " – " + pref.getDaysPerWeek() + " Day Split";
     }
 
-    private String getWarmupSuggestion(WorkoutPreference.Goal goal) {
+    private String getWarmupSuggestion(WorkoutPreference.Goal goal, boolean isFemale) {
         return switch (goal) {
             case MUSCLE_GAIN, STRENGTH ->
                 "5-10 min light cardio (jogging/cycling), dynamic stretches (arm circles, leg swings, hip rotations), 2 warm-up sets of your first exercise at 50% weight.";
             case FAT_LOSS ->
                 "10 min brisk walking or jump rope, high knees, butt kicks, dynamic stretches to elevate heart rate.";
             case ENDURANCE -> "10 min light jog, mobility drills, dynamic full-body stretches, build pace gradually.";
+            // Women-specific warmups
+            case TONING ->
+                "5-8 min brisk walk or light elliptical, bodyweight squats × 15, hip circles, arm swings to get the blood flowing.";
+            case FLEXIBILITY ->
+                "5 min gentle walking, neck rolls, shoulder rolls, cat-cow stretches on all fours, light forward folds.";
+            case POSTURE ->
+                "5 min marching in place, gentle thoracic rotations, chin tucks, shoulder blade squeezes, hip flexor stretches.";
+            case PRENATAL_SAFE ->
+                "5-8 min easy walking or light marching, gentle pelvic tilts, ankle circles, cat-cow breathing exercises. Always check with your doctor.";
         };
     }
 
-    private String getCooldownSuggestion(WorkoutPreference.Goal goal) {
+    private String getCooldownSuggestion(WorkoutPreference.Goal goal, boolean isFemale) {
         return switch (goal) {
             case MUSCLE_GAIN, STRENGTH ->
                 "5 min light walking, static stretching for targeted muscle groups (hold 30s each), foam rolling if available.";
@@ -300,10 +384,20 @@ public class WorkoutEngineService {
                 "5 min slow walk to bring heart rate down, full-body static stretches, deep breathing exercises.";
             case ENDURANCE ->
                 "5-10 min gradual cooldown walk, comprehensive stretching routine, focus on hip flexors and calves.";
+            // Women-specific cooldowns
+            case TONING ->
+                "5 min light walking, full-body static stretches focusing on glutes, hamstrings and inner thighs. Foam roll the legs. Deep belly breathing.";
+            case FLEXIBILITY ->
+                "10 min full static stretching: pigeon pose, seated forward fold, butterfly stretch, side stretches. Hold each 40-60 sec.";
+            case POSTURE ->
+                "Child's pose (1 min), doorway chest stretch, seated hamstring stretch, standing quad stretch. Focus on breathing into each stretch.";
+            case PRENATAL_SAFE ->
+                "Gentle side-lying stretch, seated cat-cow, kegel exercises, ankle rotations, 5 min slow walking. Stay hydrated and rest as needed.";
         };
     }
 
     private String capitalize(String s) {
+        if (s == null || s.isEmpty()) return s;
         return s.charAt(0) + s.substring(1).toLowerCase();
     }
 

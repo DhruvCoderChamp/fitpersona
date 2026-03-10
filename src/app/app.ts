@@ -18,7 +18,7 @@ import { AuthService } from './core/auth.service';
         <a routerLink="/workout/preferences" routerLinkActive="active">New Plan</a>
         <a routerLink="/workout/plan" routerLinkActive="active">My Plan</a>
         <a routerLink="/diet/plan" routerLinkActive="active">Diet Plan</a>
-        <a routerLink="/profile" routerLinkActive="active">My Profile</a>
+        <a routerLink="/profile" routerLinkActive="active">🏅 My Stats</a>
         <a routerLink="/gallery" routerLinkActive="active">Progress Gallery</a>
         <a routerLink="/admin/exercises" routerLinkActive="active" *ngIf="auth.isAdmin()">Admin</a>
         <button class="btn-logout" (click)="logout()">Logout</button>

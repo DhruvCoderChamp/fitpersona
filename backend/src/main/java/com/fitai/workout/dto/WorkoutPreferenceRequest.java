@@ -10,6 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkoutPreferenceRequest {
+
+    private String gender; // "MALE" or "FEMALE"
+
     @NotNull
     private WorkoutPreference.FitnessLevel level;
 

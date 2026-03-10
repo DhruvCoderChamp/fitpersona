@@ -19,6 +19,9 @@ public class WorkoutPreference {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "gender")
+    private String gender; // MALE or FEMALE
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FitnessLevel level;
@@ -45,6 +48,9 @@ public class WorkoutPreference {
     }
 
     public enum Goal {
-        MUSCLE_GAIN, FAT_LOSS, STRENGTH, ENDURANCE
+        // Universal goals (also used for men)
+        MUSCLE_GAIN, FAT_LOSS, STRENGTH, ENDURANCE,
+        // Women-specific goals
+        TONING, FLEXIBILITY, POSTURE, PRENATAL_SAFE
     }
 }

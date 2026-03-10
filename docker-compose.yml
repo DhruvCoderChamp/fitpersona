@@ -22,6 +22,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/fitpersona
       SPRING_DATASOURCE_USERNAME: fitatuser
       SPRING_DATASOURCE_PASSWORD: fitpassword123
+      # ── AWS S3 ──────────────────────────────────────────────────────────────
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+      AWS_BUCKET: ${AWS_BUCKET:-fitpersona-storage}
     depends_on:
       - postgres_db
 
@@ -34,8 +39,5 @@ services:
     ports:
       - "80:80"
       - "443:443"
-  volumes:
-    - /etc/letsencrypt:/etc/letsencrypt
-
-# volumes:
-#   fitpersona_data:
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt

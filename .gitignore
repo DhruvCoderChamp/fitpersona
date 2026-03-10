@@ -42,3 +42,10 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment / secrets – never commit these
+.env
+.env.local
+
+# PostgreSQL data volume
+pgdata/
