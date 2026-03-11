@@ -55,7 +55,7 @@ import { AuthService } from './core/auth.service';
     .brand-text {
       font-size: 1.4rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #00e676, #00bfa5);
+      background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -74,7 +74,7 @@ import { AuthService } from './core/auth.service';
       position: relative;
     }
     .nav-links a:hover, .nav-links a.active {
-      color: #00e676;
+      color: var(--accent);
     }
     .nav-links a.active::after {
       content: '';
@@ -83,7 +83,7 @@ import { AuthService } from './core/auth.service';
       left: 0;
       right: 0;
       height: 2px;
-      background: #00e676;
+      background: var(--accent);
       border-radius: 1px;
     }
     .btn-logout {
@@ -95,13 +95,43 @@ import { AuthService } from './core/auth.service';
       cursor: pointer;
       font-size: 0.85rem;
       transition: all 0.3s;
+      white-space: nowrap;
     }
     .btn-logout:hover {
-      border-color: #ff5252;
-      color: #ff5252;
+      border-color: var(--danger);
+      color: var(--danger);
     }
     main.has-nav {
       padding-top: 64px;
+    }
+    
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 0.5rem 1rem 0;
+      }
+      .nav-brand {
+        width: 100%;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+      }
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        gap: 1.25rem;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-links a {
+        white-space: nowrap;
+      }
+      main.has-nav {
+        padding-top: 100px; /* Accounts for stacked navbar */
+      }
     }
   `]
 })

@@ -90,10 +90,10 @@ import { WorkoutPlanResponse, WorkoutLogRequest } from '../../models/models';
           <a routerLink="/workout/builder" class="btn btn-primary">
             ➕ Create Custom Plan
           </a>
-          <a routerLink="/progress" class="btn btn-info" style="margin-left: 10px;">
+          <a routerLink="/progress" class="btn btn-info">
             📈 View Progress
           </a>
-          <a routerLink="/workout/preferences" class="btn btn-secondary" style="margin-left: 10px;">
+          <a routerLink="/workout/preferences" class="btn btn-secondary">
             🔄 Generate New Plan
           </a>
         </div>
@@ -292,17 +292,21 @@ import { WorkoutPlanResponse, WorkoutLogRequest } from '../../models/models';
     .animate-fade-in-up {
       animation: fadeIn 0.5s ease-out forwards;
     }
+    
+    .plan-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
 
     @media (max-width: 600px) {
       .day-header { flex-direction: column; gap: 0.8rem; text-align: center; }
       .toggle-btn { width: 100%; justify-content: center; }
-      .exercise-card { margin: 0.5rem 0; padding: 0.8rem; border-radius: 8px;}
-      .exercise-main { flex-direction: column; gap: 0.8rem; align-items: stretch; }
-      .ex-actions { width: 100%; display: flex; gap: 0.5rem; justify-content: stretch; }
-      .btn-sm { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.85rem;}
-      .log-row { flex-wrap: wrap; gap: 5px; justify-content: space-between; }
-      .sm-input { flex: 1; min-width: 0; padding: 0.5rem; }
-      .btn-save { width: 100%; margin-top: 0.8rem; padding: 0.8rem; }
+      .exercise-card { margin: 0.5rem 0; padding: 1rem; border-radius: 8px;}
+      .exercise-main { flex-direction: column; gap: 0.8rem; align-items: center; text-align: center;}
+      .ex-actions { width: 100%; display: flex; gap: 0.5rem; justify-content: stretch; flex-wrap: wrap; }
+      .btn-sm { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.85rem; min-width: 100px; }
+      .log-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .sm-input { width: 100%; padding: 0.6rem; box-sizing: border-box; text-align: center; }
+      .btn-save { grid-column: span 3; width: 100%; padding: 0.8rem; margin-top: 0.5rem; }
+      .plan-actions { flex-direction: column; }
+      .plan-actions .btn { width: 100%; margin: 0 !important; justify-content: center; }
     }
   `]
 })

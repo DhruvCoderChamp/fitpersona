@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-card: #1a1a1a;
-  --bg-card-hover: #222222;
-  --accent: #00e676;
-  --accent-dark: #00c853;
-  --accent-glow: rgba(0, 230, 118, 0.15);
-  --accent-gradient: linear-gradient(135deg, #00e676, #00bfa5);
+  --bg-primary: #030014;
+  --bg-secondary: #0A0A20;
+  --bg-card: #12122b;
+  --bg-card-hover: #1A1A3A;
+  --accent: #ff007f;
+  --accent-dark: #d6006c;
+  --accent-glow: rgba(255, 0, 127, 0.2);
+  --accent-gradient: linear-gradient(135deg, #ff007f, #7928ca);
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-muted: #666666;
+  --text-secondary: #c4c4d4;
+  --text-muted: #7e7e96;
   --border: rgba(255, 255, 255, 0.08);
   --danger: #ff5252;
   --warning: #ffab40;
@@ -24,7 +24,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 30px rgba(0, 230, 118, 0.15);
+  --shadow-glow: 0 0 30px rgba(255, 0, 127, 0.25);
 }
 
 *, *::before, *::after {
@@ -234,8 +234,12 @@ select.form-control option {
 
 // Responsive
 @media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
   .page-container {
     padding: 1rem;
+    overflow-x: hidden;
   }
   .page-title {
     font-size: 1.5rem;

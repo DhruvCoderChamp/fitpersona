@@ -243,7 +243,6 @@ interface LoginStreak {
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 1rem;
       flex: 1;
-      min-width: 260px;
     }
     .m-stat {
       background: rgba(0,0,0,0.25);
@@ -299,7 +298,7 @@ interface LoginStreak {
     /* Achievements */
     .achievements-section { margin-bottom: 1.5rem; }
     .achievements-section h3 { margin-bottom: 1.2rem; }
-    .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+    .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
     .achievement-badge {
       background: rgba(0,0,0,0.3);
       border: 1px solid var(--border);
@@ -333,8 +332,8 @@ interface LoginStreak {
     .level-bar { flex: 1; height: 10px; background: var(--bg-secondary); border-radius: 5px; overflow: hidden; }
     .level-fill { height: 100%; background: var(--accent-gradient); border-radius: 5px; transition: width 1.5s ease-out; }
     .level-pct { font-size: 0.85rem; font-weight: 700; color: var(--accent); min-width: 36px; }
-    .level-milestones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .lv-chip { flex: 1; min-width: 70px; text-align: center; padding: 0.5rem 0.3rem; border-radius: 8px; font-size: 0.72rem; border: 1px solid var(--border); opacity: 0.4; transition: all 0.3s; line-height: 1.4; }
+    .level-milestones { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 0.5rem; }
+    .lv-chip { text-align: center; padding: 0.5rem 0.3rem; border-radius: 8px; font-size: 0.72rem; border: 1px solid var(--border); opacity: 0.4; transition: all 0.3s; line-height: 1.4; }
     .lv-chip.done { opacity: 1; border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.05); }
     .lv-chip.current { opacity: 1; border-color: var(--accent); background: rgba(0,230,118,0.08); box-shadow: 0 0 10px rgba(0,230,118,0.15); }
     .lv-chip small { color: var(--text-muted); font-size: 0.62rem; display: block; }
@@ -361,9 +360,13 @@ interface LoginStreak {
     .animate-fade-in-up { animation: fadeIn 0.5s ease-out forwards; }
 
     @media (max-width: 768px) {
-      .motivation-hero { flex-direction: column; }
+      .motivation-hero { flex-direction: column; padding: 1.5rem; }
       .hero-left { flex-direction: column; text-align: center; }
+      .motivation-stats { grid-template-columns: repeat(2, 1fr); min-width: 100%; width: 100%; }
       .level-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+      .level-milestones { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .achievements-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   `]
 })

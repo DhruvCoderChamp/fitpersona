@@ -225,15 +225,18 @@ import { DashboardResponse, WorkoutLogResponse, Exercise } from '../../models/mo
     .action-text { font-weight: 600; }
 
     @media (max-width: 768px) {
-      .dash-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .dash-header { flex-direction: column; gap: 1rem; align-items: center; text-align: center; }
+      .dash-header .btn { width: 100%; justify-content: center; }
       .bmi-scale { flex-direction: column; gap: 0.5rem; }
-      .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-      .stats-grid { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .stat-card { flex-direction: column; text-align: center; padding: 1rem; gap: 0.5rem; }
+      .stat-icon { font-size: 2rem; margin-bottom: 0.2rem; }
       .water-glasses { justify-content: center; }
       .progress-bar-container { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-      .progress-bar { width: 100%; }
-      .section-header { flex-direction: column; align-items: stretch; gap: 0.8rem; }
-      .section-header h3 { margin: 0; text-align: center; }
+      .progress-bar { width: 100%; height: 16px; }
+      .section-header { flex-direction: column; align-items: stretch; gap: 0.8rem; text-align: center; }
+      .section-header h3 { margin: 0; }
       .exercise-select { width: 100%; max-width: 100%; box-sizing: border-box; }
     }
   `]

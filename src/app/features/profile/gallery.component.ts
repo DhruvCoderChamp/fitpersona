@@ -149,11 +149,11 @@ import { ProgressPhotoResponse } from '../../models/models';
       .comparison-display { grid-template-columns: 1fr; gap: 1.5rem; }
       .comparison-selectors { flex-direction: column; gap: 1rem; }
       .selector { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-      .selector select { width: 100%; }
-      .upload-controls { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+      .selector select { width: 100%; box-sizing: border-box; }
+      .upload-controls { flex-direction: column; align-items: stretch; gap: 1rem; }
       .upload-controls .btn, .upload-controls input[type="text"] { width: 100%; box-sizing: border-box; }
-      .file-input-wrapper { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
-      .file-input-wrapper textarea, .file-input-wrapper label { margin: 0; width: 100%; box-sizing: border-box; }
+      .file-input-wrapper { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; width: 100%; }
+      .file-input-wrapper label { margin: 0; width: 100%; box-sizing: border-box; }
       .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
       .badge { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
     }
